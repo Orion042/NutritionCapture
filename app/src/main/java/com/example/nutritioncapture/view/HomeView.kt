@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
@@ -42,6 +43,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -53,6 +55,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.res.colorResource
@@ -60,10 +63,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.nutritioncapture.R
+import com.example.nutritioncapture.data.model.CardData
+import com.example.nutritioncapture.data.service.getDummyCardDataFromRoom
 import kotlinx.coroutines.launch
 
 private val TAG = "HomeView.kt"
@@ -79,6 +85,13 @@ fun HomeView() {
     // ポップアップメニューの表示状態
     val (showMenuIndex, setShowMenuIndex) = remember { mutableStateOf(-1) }
 
+    val cardDataList = remember { mutableStateOf<List<CardData>?>(null) }
+
+    LaunchedEffect(Unit) {
+        val data = getDummyCardDataFromRoom()
+        cardDataList.value = data
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
         Column {
             LazyColumn(
@@ -89,104 +102,50 @@ fun HomeView() {
                 item {
                     Column {
                         Text(
-                            text = stringResource(id = R.string.homeview_card_title_string),
+                            text = "HomeView Cards",
                             color = Color.Black,
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier
                                 .padding(start = 16.dp, bottom = 8.dp)
                         )
-                        LazyRow(
-                            modifier = Modifier
-                                .padding(horizontal = 16.dp)
-                                .height(170.dp)
-                        ) {
-                            items(10) { index ->
-                                Card(
-                                    backgroundColor = Color.LightGray,
-                                    shape = RoundedCornerShape(12.dp),
-                                    elevation = 4.dp,
-                                    modifier = Modifier
-                                        .padding(8.dp)
-                                        .width(190.dp)
-                                        .clickable {
-                                            // cardViewがクリックされたとき TODO:処理未定（画像の詳細表示？）
-                                            showLog("cardタップ")
-                                            setDialogContent("Settings for Card $index")
+                        if(cardDataList.value != null) {
+                            LazyRow(
+                                modifier = Modifier
+                                    .padding(horizontal = 16.dp)
+                                    .height(170.dp)
+                            ) {
+                                itemsIndexed(cardDataList.value!!) { index, cardData ->
+                                    CardViewItem(
+                                        index = index,
+                                        date = cardData.date,
+                                        cardContent = {
+                                            Text(text = cardData.title)
+                                        },
+                                        onCardClick = {
+                                            setDialogContent("Details for ${cardData.title}")
                                             setShowDialog(true)
-                                        }
-                                ) {
-                                    Box(
-                                        contentAlignment = Alignment.TopEnd,
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                    ) {
-                                        Box(
-                                            modifier = Modifier
-                                                .align(Alignment.TopEnd)
-                                        ) {
-                                            IconButton(
-                                                onClick = {
-                                                    setShowMenuIndex(index)
-                                                },
-                                                modifier = Modifier
-                                                    .padding(0.dp)
-                                            ) {
-                                                Icon(
-                                                    imageVector = Icons.Default.MoreVert,
-                                                    contentDescription = "Options Menu"
-                                                )
+                                        },
+                                        showMenuIndex = showMenuIndex,
+                                        setShowMenuIndex = setShowMenuIndex,
+                                        menuItems = listOf(
+                                            "修正" to {
+                                                // TODO: 未定
+                                            },
+                                            "削除" to {
+                                                // TODO: 削除処理
                                             }
-
-                                            if (showMenuIndex == index) {
-                                                DropdownMenu(
-                                                    expanded = true,
-                                                    onDismissRequest = { setShowMenuIndex(-1) },
-                                                    modifier = Modifier
-                                                        .background(Color.White)
-                                                        .offset {
-                                                            IntOffset(
-                                                                x = 0,
-                                                                y = 0
-                                                            )
-                                                        }
-                                                        .align(Alignment.TopEnd)
-                                                ) {
-                                                    DropdownMenuItem(onClick = {
-                                                        // ポップアップメニューの処理未定
-                                                        showLog("ポップアップ、仮1")
-                                                    }) {
-                                                        Text("仮1")
-                                                    }
-                                                    DropdownMenuItem(onClick = {
-                                                        // ポップアップメニューの処理未定
-                                                        showLog("ポップアップ、仮2")
-                                                    }) {
-                                                        Text("仮2")
-                                                    }
-                                                }
-                                            }
-                                        }
-
-                                        Column(
-                                            modifier = Modifier
-                                                .fillMaxSize()
-                                                .padding(16.dp),
-                                            verticalArrangement = Arrangement.Center
-                                        ) {
-                                            Text(
-                                                text = "Card $index",
-                                                style = MaterialTheme.typography.h6
-                                            )
-                                        }
-                                    }
+                                        )
+                                    )
                                 }
                             }
+                        }
+                        else {
+                            showLog("DBの結果がnull")
                         }
                     }
                 }
 
-                // 縦スクロール（内容未定）
                 items(100) { index ->
                     Text(
                         text = "Item No.$index",
@@ -244,6 +203,94 @@ fun HomeView() {
             text = dialogContent,
             onConfirm = { setShowDialog(false) }
         )
+    }
+}
+
+@Composable
+fun CardViewItem(
+    index: Int,
+    backgroundColor: Color = Color.LightGray,
+    shape: Shape = RoundedCornerShape(12.dp),
+    elevation: Dp = 4.dp,
+    cardWidth: Dp = 190.dp,
+    cardHeight: Dp = 170.dp,
+    date: String,
+    cardContent: @Composable () -> Unit,
+    onCardClick: () -> Unit,
+    showMenuIndex: Int,
+    setShowMenuIndex: (Int) -> Unit,
+    menuItems: List<Pair<String, () -> Unit>>
+) {
+    Card(
+        backgroundColor = backgroundColor,
+        shape = shape,
+        elevation = elevation,
+        modifier = Modifier
+            .padding(8.dp)
+            .width(cardWidth)
+            .height(cardHeight)
+            .clickable(onClick = onCardClick)
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Text(
+                text = date,
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(8.dp),
+                style = MaterialTheme.typography.caption,
+                color = Color.Black
+            )
+
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+            ) {
+                IconButton(
+                    onClick = {
+                        setShowMenuIndex(index)
+                    },
+                    modifier = Modifier.padding(0.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.MoreVert,
+                        contentDescription = "Options Menu"
+                    )
+                }
+
+                if (showMenuIndex == index) {
+                    DropdownMenu(
+                        expanded = true,
+                        onDismissRequest = { setShowMenuIndex(-1) },
+                        modifier = Modifier
+                            .background(Color.White)
+                            .offset {
+                                IntOffset(x = 0, y = 0)
+                            }
+                            .align(Alignment.TopEnd)
+                    ) {
+                        menuItems.forEach { (text, action) ->
+                            DropdownMenuItem(onClick = {
+                                action()
+                                setShowMenuIndex(-1)
+                            }) {
+                                Text(text)
+                            }
+                        }
+                    }
+                }
+            }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Center
+            ) {
+                cardContent()
+            }
+        }
     }
 }
 

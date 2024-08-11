@@ -58,7 +58,7 @@ enum class MainScreenTab(
 }
 
 @Composable
-fun MainScreen() {
+fun MainScreenView() {
     val navController = rememberNavController()
     var selectedItem by remember { mutableStateOf(MainScreenTab.Home) }
 
