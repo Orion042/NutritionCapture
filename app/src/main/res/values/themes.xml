@@ -2,4 +2,12 @@
 <resources>
 
     <style name="Theme.NutritionCapture" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="AppTheme.SplashScreen" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_image</item>
+        <item name="android:windowSplashScreenIconBackgroundColor">@color/aliceblue</item>
+        <item name="windowSplashScreenIconBackgroundColor">@null</item>
+        <item name="windowSplashScreenAnimationDuration">0</item>
+    </style>
+
 </resources>
