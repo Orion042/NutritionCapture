@@ -1,6 +1,8 @@
 package com.example.nutritioncapture.view
 
 import android.app.AlertDialog
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearOutSlowInEasing
@@ -8,6 +10,7 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -56,6 +59,8 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.res.colorResource
@@ -102,7 +107,7 @@ fun HomeView() {
                 item {
                     Column {
                         Text(
-                            text = "HomeView Cards",
+                            text = stringResource(id = R.string.homeview_card_title_string),
                             color = Color.Black,
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
@@ -119,6 +124,7 @@ fun HomeView() {
                                     CardViewItem(
                                         index = index,
                                         date = cardData.date,
+                                        imageData = cardData.imageData,
                                         cardContent = {
                                             Text(text = cardData.title)
                                         },
@@ -215,6 +221,7 @@ fun CardViewItem(
     cardWidth: Dp = 190.dp,
     cardHeight: Dp = 170.dp,
     date: String,
+    imageData: ByteArray?,
     cardContent: @Composable () -> Unit,
     onCardClick: () -> Unit,
     showMenuIndex: Int,
@@ -234,6 +241,16 @@ fun CardViewItem(
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
+            imageData?.let {
+                val bitmap = it.toBitmap()
+                Image(
+                    bitmap = bitmap.asImageBitmap(),
+                    contentDescription = "Card Image",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+
             Text(
                 text = date,
                 modifier = Modifier
@@ -292,6 +309,10 @@ fun CardViewItem(
             }
         }
     }
+}
+
+private fun ByteArray.toBitmap(): Bitmap {
+    return BitmapFactory.decodeByteArray(this, 0, size)
 }
 
 @Composable

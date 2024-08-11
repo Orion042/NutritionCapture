@@ -5,5 +5,6 @@ data class CardData(
     val date: String,
     val title: String,
     val label: String,
+    val imageData: ByteArray?,
     val description: String
 )
