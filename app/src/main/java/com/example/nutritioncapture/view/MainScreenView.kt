@@ -127,7 +127,7 @@ fun MainScreenView() {
         Box(modifier = Modifier.padding(it)) {
             NavHost(navController = navController, startDestination = MainScreenTab.Home.route) {
                 composable(MainScreenTab.Home.route) {
-                    HomeView()
+                    HomeView(navController)
                 }
                 composable(MainScreenTab.Search.route) {
                     SearchView()
@@ -137,6 +137,9 @@ fun MainScreenView() {
                 }
                 composable(MainScreenTab.Settings.route) {
                     SettingsView()
+                }
+                composable("camera") {
+                    CameraView()
                 }
             }
         }

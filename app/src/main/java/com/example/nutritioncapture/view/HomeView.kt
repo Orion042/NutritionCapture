@@ -1,7 +1,9 @@
 package com.example.nutritioncapture.view
 
+import android.Manifest
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.os.Build
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -57,16 +59,21 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.nutritioncapture.R
 import com.example.nutritioncapture.data.model.CardData
 import com.example.nutritioncapture.data.model.UserInfo
 import com.example.nutritioncapture.data.service.getDummyCardData
 import com.example.nutritioncapture.data.service.getDummyUserData
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.MultiplePermissionsState
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
 
-private val TAG = "HomeView.kt"
+private val TAG = "HomeView"
 
 @Composable
-fun HomeView() {
+fun HomeView(navController: NavController) {
     val listState = rememberLazyListState()
     val context = LocalContext.current
 
@@ -152,7 +159,7 @@ fun HomeView() {
                             modifier = Modifier
                                 .padding(start = 16.dp, top = 10.dp,bottom = 8.dp)
                         )
-                        
+
                         LazyRow(
                             modifier = Modifier
                                 .padding(horizontal = 15.dp)
@@ -188,7 +195,7 @@ fun HomeView() {
 
         ExtendedFloatingActionButton(
             onClick = {
-                showLog("ボタンクリック")
+                navController.navigate("camera")
             },
             icon = {
                 Icon(
@@ -247,7 +254,6 @@ fun OtherUserIcons(
                     showLog("おすすめユーザータップ")
                 })
         )
-
     }
 }
 
@@ -374,12 +380,4 @@ fun displayDialog(
 
 private fun showLog(action: String) {
     Log.d(TAG, "showLog() action: $action")
-}
-
-@Preview
-@Composable
-fun PreviewHomeView() {
-    Surface{
-        HomeView()
-    }
 }
