@@ -2,6 +2,8 @@
     <string name="app_name">NutritionCapture</string>
 
     <!-- HomeView -->
-    <string name="homeview_card_title_string">直近撮影した料理</string>
+    <string name="homeview_take_picture_string">撮影</string>
+    <string name="homeview_card_title_string">最近撮影した食事</string>
+    <string name="homeview_recommend_user_string">おすすめユーザー</string>
     <!-- End -->
 </resources>

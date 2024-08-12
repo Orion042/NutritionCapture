@@ -1,5 +1,7 @@
 package com.example.nutritioncapture.view
 
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
@@ -8,9 +10,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DataThresholding
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.DataThresholding
 import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.outlined.SearchOff
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -38,21 +43,31 @@ import androidx.navigation.compose.rememberNavController
 enum class MainScreenTab(
     val icon: ImageVector,
     val iconSelected: ImageVector,
+    val label: String,
     val route: String,
 ) {
     Home(
         icon = Icons.Outlined.Home,
         iconSelected = Icons.Filled.Home,
+        label = "ホーム",
         route = "Home"
+    ),
+    Search(
+        icon = Icons.Outlined.Search,
+        iconSelected = Icons.Filled.Search,
+        label = "検索",
+        route = "Search"
     ),
     Graph(
         icon = Icons.Outlined.DataThresholding,
         iconSelected = Icons.Filled.DataThresholding,
+        label = "結果",
         route = "Graph"
     ),
     Settings(
         icon = Icons.Outlined.Settings,
         iconSelected = Icons.Filled.Settings,
+        label = "設定",
         route = "Settings"
     )
 }
@@ -83,7 +98,7 @@ fun MainScreenView() {
                         },
                         label = {
                             Text(
-                                text = item.route,
+                                text = item.label,
                                 style = MaterialTheme.typography.bodySmall.copy(
                                     fontSize = 12.sp
                                 ),
@@ -113,6 +128,9 @@ fun MainScreenView() {
             NavHost(navController = navController, startDestination = MainScreenTab.Home.route) {
                 composable(MainScreenTab.Home.route) {
                     HomeView()
+                }
+                composable(MainScreenTab.Search.route) {
+                    SearchView()
                 }
                 composable(MainScreenTab.Graph.route) {
                     GraphView()

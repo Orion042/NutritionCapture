@@ -1,24 +1,15 @@
 package com.example.nutritioncapture.view
 
-import android.app.AlertDialog
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -30,10 +21,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.DropdownMenuItem
-import androidx.compose.material.FloatingActionButton
+import androidx.compose.material.ExtendedFloatingActionButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
@@ -47,26 +39,19 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -74,14 +59,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.nutritioncapture.R
 import com.example.nutritioncapture.data.model.CardData
-import com.example.nutritioncapture.data.service.getDummyCardDataFromRoom
-import kotlinx.coroutines.launch
+import com.example.nutritioncapture.data.model.UserInfo
+import com.example.nutritioncapture.data.service.getDummyCardData
+import com.example.nutritioncapture.data.service.getDummyUserData
 
 private val TAG = "HomeView.kt"
 
 @Composable
 fun HomeView() {
     val listState = rememberLazyListState()
+    val context = LocalContext.current
 
     // ダイアログの表示状態
     val (showDialog, setShowDialog) = remember { mutableStateOf(false) }
@@ -91,10 +78,16 @@ fun HomeView() {
     val (showMenuIndex, setShowMenuIndex) = remember { mutableStateOf(-1) }
 
     val cardDataList = remember { mutableStateOf<List<CardData>?>(null) }
+    val otherUserList = remember { mutableStateOf<List<UserInfo>?>(null)}
 
     LaunchedEffect(Unit) {
-        val data = getDummyCardDataFromRoom()
+        val data = getDummyCardData(context)
         cardDataList.value = data
+    }
+
+    LaunchedEffect(Unit) {
+        val userData = getDummyUserData(context)
+        otherUserList.value = userData
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -117,17 +110,14 @@ fun HomeView() {
                         if(cardDataList.value != null) {
                             LazyRow(
                                 modifier = Modifier
-                                    .padding(horizontal = 16.dp)
+                                    .padding(horizontal = 15.dp)
                                     .height(170.dp)
                             ) {
                                 itemsIndexed(cardDataList.value!!) { index, cardData ->
-                                    CardViewItem(
-                                        index = index,
+                                    DishHistoryList(
+                                        index = cardData.id,
                                         date = cardData.date,
                                         imageData = cardData.imageData,
-                                        cardContent = {
-                                            Text(text = cardData.title)
-                                        },
                                         onCardClick = {
                                             setDialogContent("Details for ${cardData.title}")
                                             setShowDialog(true)
@@ -137,9 +127,11 @@ fun HomeView() {
                                         menuItems = listOf(
                                             "修正" to {
                                                 // TODO: 未定
+                                                showLog("修正")
                                             },
                                             "削除" to {
                                                 // TODO: 削除処理
+                                                showLog("削除")
                                             }
                                         )
                                     )
@@ -149,6 +141,36 @@ fun HomeView() {
                         else {
                             showLog("DBの結果がnull")
                         }
+                    }
+
+                    if(otherUserList.value != null) {
+                        Text(
+                            text = stringResource(id = R.string.homeview_recommend_user_string),
+                            color = Color.Black,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier
+                                .padding(start = 16.dp, top = 10.dp,bottom = 8.dp)
+                        )
+                        
+                        LazyRow(
+                            modifier = Modifier
+                                .padding(horizontal = 15.dp)
+                                .height(170.dp)
+                        ) {
+                            itemsIndexed(otherUserList.value!!) { index, otherUserData ->
+                                OtherUserIcons(
+                                    index = otherUserData.id,
+                                    imageData = otherUserData.imageData,
+                                    onCardClick = {
+                                        showLog("他のユーザーアイコンタップ")
+                                    }
+                                )
+                            }
+                        }
+                    }
+                    else {
+                        showLog("他のユーザー存在せず")
                     }
                 }
 
@@ -164,41 +186,30 @@ fun HomeView() {
             }
         }
 
-        // 撮影ボタン
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp)
-                .background(
-                    color = colorResource(id = R.color.cornflower_blue),
-                    RoundedCornerShape(8.dp)
-                )
-                .clickable {
-                    showLog("撮影ボタンタップ")
-                }
-        ) {
-            Row(
-                modifier = Modifier
-                    .padding(8.dp)
-                    .size(50.dp)
-                    .align(Alignment.Center),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+        ExtendedFloatingActionButton(
+            onClick = {
+                showLog("ボタンクリック")
+            },
+            icon = {
                 Icon(
                     imageVector = Icons.Default.CameraAlt,
-                    contentDescription = "Camera Icon",
-                    tint = Color.White,
-                    modifier = Modifier.size(25.dp)
+                    contentDescription = "カメラを起動する",
+                    modifier = Modifier.size(25.dp),
+                    tint = Color.White
                 )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = "撮影",
-                    color = Color.White,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        }
+            },
+            text = {
+                Text(text = stringResource(id = R.string.homeview_take_picture_string), color = Color.White, fontSize = 18.sp)
+            },
+            backgroundColor = colorResource(id = R.color.cornflower_blue),
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(end = 20.dp, bottom = 20.dp)
+                .width(110.dp)
+                .height(60.dp),
+            shape = RoundedCornerShape(10.dp)
+        )
+
     }
 
     if (showDialog) {
@@ -213,16 +224,44 @@ fun HomeView() {
 }
 
 @Composable
-fun CardViewItem(
+fun OtherUserIcons(
     index: Int,
-    backgroundColor: Color = Color.LightGray,
+    backgroundColor: Color = Color.White,
+    imageData: ByteArray?,
+    onCardClick: () -> Unit
+) {
+    imageData?.let {
+        val bitmap = it.toBitmap()
+
+        Image(
+            bitmap = bitmap.asImageBitmap(),
+            contentDescription = "Other User Icon",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .padding(7.dp)
+                .size(80.dp)
+                .clip(CircleShape)
+                .background(backgroundColor)
+                .border(4.dp, colorResource(id = R.color.dark_green), CircleShape)
+                .clickable(onClick = {
+                    showLog("おすすめユーザータップ")
+                })
+        )
+
+    }
+}
+
+
+@Composable
+fun DishHistoryList(
+    index: Int,
+    backgroundColor: Color = Color.White,
     shape: Shape = RoundedCornerShape(12.dp),
     elevation: Dp = 4.dp,
-    cardWidth: Dp = 190.dp,
-    cardHeight: Dp = 170.dp,
+    cardWidth: Dp = 200.dp,
+    cardHeight: Dp = 180.dp,
     date: String,
     imageData: ByteArray?,
-    cardContent: @Composable () -> Unit,
     onCardClick: () -> Unit,
     showMenuIndex: Int,
     setShowMenuIndex: (Int) -> Unit,
@@ -231,6 +270,7 @@ fun CardViewItem(
     Card(
         backgroundColor = backgroundColor,
         shape = shape,
+        border = BorderStroke(4.dp, color = colorResource(id = R.color.dark_green)),
         elevation = elevation,
         modifier = Modifier
             .padding(8.dp)
@@ -255,8 +295,10 @@ fun CardViewItem(
                 text = date,
                 modifier = Modifier
                     .align(Alignment.TopStart)
-                    .padding(8.dp),
+                    .padding(8.dp)
+                    .background(Color.LightGray),
                 style = MaterialTheme.typography.caption,
+                fontWeight = FontWeight.Bold,
                 color = Color.Black
             )
 
@@ -297,15 +339,6 @@ fun CardViewItem(
                         }
                     }
                 }
-            }
-
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.Center
-            ) {
-                cardContent()
             }
         }
     }
