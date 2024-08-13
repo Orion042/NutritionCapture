@@ -73,11 +73,12 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.7.7")
     implementation("androidx.compose.material:material-icons-extended:1.6.8")
     implementation("androidx.navigation:navigation-compose:2.7.7")
-    implementation ("com.google.accompanist:accompanist-permissions:0.35.1-alpha")
+    implementation("com.google.accompanist:accompanist-permissions:0.35.1-alpha")
 
     implementation("androidx.camera:camera-core:1.3.4")
-    implementation ("androidx.camera:camera-camera2:1.3.4")
-    implementation ("androidx.camera:camera-lifecycle:1.3.4")
-    implementation ("androidx.camera:camera-view:1.3.4")
-    implementation ("androidx.camera:camera-extensions:1.3.4")
+    implementation("androidx.camera:camera-camera2:1.3.4")
+    implementation("androidx.camera:camera-lifecycle:1.3.4")
+    implementation("androidx.camera:camera-view:1.3.4")
+    implementation("androidx.camera:camera-extensions:1.3.4")
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.35.1-alpha")
 }

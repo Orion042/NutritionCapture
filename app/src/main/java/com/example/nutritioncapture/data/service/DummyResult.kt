@@ -10,7 +10,7 @@ import com.example.nutritioncapture.utils.imageToByteArray
 import kotlinx.coroutines.delay
 import java.io.ByteArrayOutputStream
 
-suspend fun getDummyCardData(context: Context): List<CardData> {
+suspend fun getDummyCardData(context: Context): List<CardData>? {
     delay(1500L)
 
     return listOf(
@@ -20,7 +20,7 @@ suspend fun getDummyCardData(context: Context): List<CardData> {
     )
 }
 
-suspend fun getDummyUserData(context: Context) : List<UserInfo> {
+suspend fun getDummyUserData(context: Context) : List<UserInfo>? {
     delay(1000L)
 
     return listOf(
