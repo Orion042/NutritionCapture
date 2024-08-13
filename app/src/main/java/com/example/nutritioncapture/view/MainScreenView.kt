@@ -87,8 +87,6 @@ fun MainScreenView() {
 
     Scaffold(
         bottomBar = {
-            // CameraViewが表示されていないときのみナビゲーションバーを表示
-            Log.d("MainScreenView", selectedItem.route)
             if (!isCameraModeStart) {
                 NavigationBar(
                     modifier = Modifier.height(80.dp)
@@ -137,20 +135,23 @@ fun MainScreenView() {
                     HomeView(navController)
                 }
                 composable(MainScreenTab.Search.route) {
-                    SearchView()
+                    SearchView(navController)
                 }
                 composable(MainScreenTab.Graph.route) {
-                    GraphView()
+                    GraphView(navController)
                 }
                 composable(MainScreenTab.Settings.route) {
-                    SettingsView()
+                    SettingsView(navController)
                 }
                 composable("camera") {
 
-                    CameraView()
+                    CameraView(navController)
 
                     isCameraModeStart = true
 
+                }
+                composable("confirmPhoto") {
+                    ConfirmPhotoView(navController)
                 }
             }
         }

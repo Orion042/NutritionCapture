@@ -9,4 +9,9 @@
     <string name="title_activity_settings">SettingsActivity</string>
     <string name="title_activity_camera">CameraActivity</string>
     <!-- End -->
+
+    <!-- ConfirmPhotoView -->
+    <string name="confirmphotoview_take_photo_string">撮り直し</string>
+    <string name="confirmphotoview_ai_analyze_string">AI分析</string>
+    <!-- End -->
 </resources>

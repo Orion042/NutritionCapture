@@ -26,9 +26,11 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ButtonElevation
 import androidx.compose.material.Card
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.ExtendedFloatingActionButton
+import androidx.compose.material.FloatingActionButtonDefaults
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
@@ -68,6 +70,7 @@ import com.example.nutritioncapture.data.model.CardData
 import com.example.nutritioncapture.data.model.UserInfo
 import com.example.nutritioncapture.data.service.getDummyCardData
 import com.example.nutritioncapture.data.service.getDummyUserData
+import com.example.nutritioncapture.utils.byteArrayToBitmap
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.MultiplePermissionsState
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
@@ -202,7 +205,6 @@ fun HomeView(navController: NavController) {
                     popUpTo(MainScreenTab.Home.route) {
                         saveState = true
                     }
-                    restoreState = true
                     launchSingleTop = true
                 }
             },
@@ -220,10 +222,13 @@ fun HomeView(navController: NavController) {
             backgroundColor = colorResource(id = R.color.cornflower_blue),
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(end = 20.dp, bottom = 20.dp)
+                .padding(end = 25.dp, bottom = 25.dp)
                 .width(110.dp)
                 .height(60.dp),
-            shape = RoundedCornerShape(10.dp)
+            shape = RoundedCornerShape(10.dp),
+            elevation = FloatingActionButtonDefaults.elevation(
+                defaultElevation = 7.dp
+            )
         )
 
     }
@@ -247,10 +252,10 @@ fun OtherUserIcons(
     onCardClick: () -> Unit
 ) {
     imageData?.let {
-        val bitmap = it.toBitmap()
+        val bitmap = byteArrayToBitmap(it)
 
         Image(
-            bitmap = bitmap.asImageBitmap(),
+            bitmap = bitmap!!.asImageBitmap(),
             contentDescription = "Other User Icon",
             contentScale = ContentScale.Crop,
             modifier = Modifier
@@ -297,9 +302,9 @@ fun DishHistoryList(
             modifier = Modifier.fillMaxSize()
         ) {
             imageData?.let {
-                val bitmap = it.toBitmap()
+                val bitmap = byteArrayToBitmap(it)
                 Image(
-                    bitmap = bitmap.asImageBitmap(),
+                    bitmap = bitmap!!.asImageBitmap(),
                     contentDescription = "Card Image",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
@@ -357,10 +362,6 @@ fun DishHistoryList(
             }
         }
     }
-}
-
-private fun ByteArray.toBitmap(): Bitmap {
-    return BitmapFactory.decodeByteArray(this, 0, size)
 }
 
 @Composable
