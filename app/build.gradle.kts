@@ -3,6 +3,7 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    id("org.jetbrains.kotlin.plugin.serialization")
 }
 
 android {
@@ -93,7 +94,11 @@ dependencies {
     implementation("androidx.camera:camera-lifecycle:1.3.4")
     implementation("androidx.camera:camera-view:1.3.4")
     implementation("androidx.camera:camera-extensions:1.3.4")
+
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.35.1-alpha")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.1")
+
+    implementation("androidx.compose.runtime:runtime-livedata:1.6.8")
 
     implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
     implementation("com.aallam.openai:openai-client:3.8.2")

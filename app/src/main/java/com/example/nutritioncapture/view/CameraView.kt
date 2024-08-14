@@ -98,6 +98,7 @@ fun CameraView(navController: NavController) {
         showLog("byteArray: $capturedByteArray")
 
         ViewModelOwner().getPhotoImageViewModel().setImageByteArray(capturedByteArray)
+        ViewModelOwner().getDishesViewModel().resetViewModel()
 
         navController.navigate("confirmPhoto") {
             launchSingleTop = true

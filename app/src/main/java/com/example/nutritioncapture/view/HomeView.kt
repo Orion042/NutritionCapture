@@ -47,6 +47,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -90,8 +91,8 @@ fun HomeView(navController: NavController) {
     // ポップアップメニューの表示状態
     val (showMenuIndex, setShowMenuIndex) = remember { mutableStateOf(-1) }
 
-    val cardDataList = remember { mutableStateOf<List<CardData>?>(null) }
-    val otherUserList = remember { mutableStateOf<List<UserInfo>?>(null)}
+    val cardDataList = rememberSaveable { mutableStateOf<List<CardData>?>(null) }
+    val otherUserList = rememberSaveable { mutableStateOf<List<UserInfo>?>(null)}
 
     LaunchedEffect(Unit) {
         val data = getDummyCardData(context)
