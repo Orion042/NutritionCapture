@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -18,6 +20,13 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        val properties = Properties().apply {
+            load(project.rootProject.file("local.properties").inputStream())
+        }
+
+        buildConfigField("String", "OPENAI_API_KEY", "\"${properties["OPENAI_API_KEY"]}\"")
+        buildConfigField("String", "GEMINI_API_KEY", "\"${properties["GEMINI_API_KEY"]}\"")
     }
 
     buildTypes {
@@ -46,6 +55,10 @@ android {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 }
 
@@ -81,4 +94,8 @@ dependencies {
     implementation("androidx.camera:camera-view:1.3.4")
     implementation("androidx.camera:camera-extensions:1.3.4")
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.35.1-alpha")
+
+    implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
+    implementation("com.aallam.openai:openai-client:3.8.2")
+    implementation("io.ktor:ktor-client-android:2.3.12")
 }

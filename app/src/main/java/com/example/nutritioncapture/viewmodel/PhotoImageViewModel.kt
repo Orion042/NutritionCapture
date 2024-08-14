@@ -1,6 +1,5 @@
 package com.example.nutritioncapture.viewmodel
 
-import android.graphics.Bitmap
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -10,13 +9,12 @@ import kotlinx.coroutines.launch
 
 class PhotoImageViewModel : ViewModel() {
 
-    var imageBitMap by mutableStateOf<ByteArray?>(null)
-        private set
+    var imageByteArrayMutableState by mutableStateOf<ByteArray?>(null)
 
     fun setImageByteArray(byteArray: ByteArray?) {
         viewModelScope.launch {
             byteArray.let {
-                imageBitMap = byteArray
+                imageByteArrayMutableState = byteArray
             }
         }
     }

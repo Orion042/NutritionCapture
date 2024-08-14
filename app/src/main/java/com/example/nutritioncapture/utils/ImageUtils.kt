@@ -8,6 +8,8 @@ import androidx.camera.core.ImageProxy
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.viewinterop.AndroidView
 import java.io.ByteArrayOutputStream
+import java.util.Base64
+import java.util.zip.GZIPOutputStream
 
 fun imageToByteArray(context: Context, drawableResId: Int): ByteArray {
 
@@ -27,6 +29,37 @@ fun imageToByteArray(image: ImageProxy): ByteArray {
     val byteArray = ByteArray(buffer.remaining())
     buffer.get(byteArray)
     return byteArray
+}
+
+fun bitmapToBase64(bitmap: Bitmap, format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG, quality: Int = 100): String {
+
+    val outputStream = ByteArrayOutputStream()
+    bitmap.compress(format, quality, outputStream)
+
+    val byteArray = outputStream.toByteArray()
+
+    return Base64.getEncoder().encodeToString(byteArray)
+}
+
+fun resizeBitmap(bitmap: Bitmap, newWidth: Int, newHeight: Int): Bitmap {
+    val scaledBitmap = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
+    return scaledBitmap
+}
+
+fun compressAndEncodeBitmap(bitmap: Bitmap, format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG, quality: Int = 100): String {
+    val outputStream = ByteArrayOutputStream()
+    bitmap.compress(format, quality, outputStream)
+    val byteArray = outputStream.toByteArray()
+
+    // 圧縮
+    val compressedByteArray = ByteArrayOutputStream().use { bos ->
+        GZIPOutputStream(bos).use { gzip ->
+            gzip.write(byteArray)
+        }
+        bos.toByteArray()
+    }
+
+    return Base64.getEncoder().encodeToString(compressedByteArray)
 }
 
 @Composable

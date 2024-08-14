@@ -1,8 +1,6 @@
 package com.example.nutritioncapture.view
 
-import android.graphics.Bitmap
 import android.util.Log
-import android.widget.ImageView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -20,8 +18,6 @@ import androidx.compose.material.ExtendedFloatingActionButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Analytics
 import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -29,7 +25,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,15 +35,18 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.nutritioncapture.R
-import com.example.nutritioncapture.utils.BitmapViewer
+import com.example.nutritioncapture.utils.ChatGptUtils
+import com.example.nutritioncapture.utils.GeminiUtils
+import com.example.nutritioncapture.utils.bitmapToBase64
 import com.example.nutritioncapture.utils.byteArrayToBitmap
-import com.example.nutritioncapture.viewmodel.PhotoImageViewModel
+import com.example.nutritioncapture.utils.compressAndEncodeBitmap
+import com.example.nutritioncapture.utils.resizeBitmap
 import com.example.nutritioncapture.viewmodel.ViewModelOwner
-import kotlin.math.log
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 private val TAG = "ConfirmPhotoView"
@@ -57,7 +55,7 @@ private val TAG = "ConfirmPhotoView"
 @Composable
 fun ConfirmPhotoView(navController: NavController) {
 
-    val imageBitmap = byteArrayToBitmap(ViewModelOwner().getPhotoImageViewModel().imageBitMap!!)
+    val imageBitmap = byteArrayToBitmap(ViewModelOwner().getPhotoImageViewModel().imageByteArrayMutableState!!)
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column {
@@ -107,6 +105,11 @@ fun ConfirmPhotoView(navController: NavController) {
                 ExtendedFloatingActionButton(
                     onClick = {
                         // 処理 TODO:AIの画像分析
+
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val a = GeminiUtils().getGeminiProResponseFromBitmap(imageBitmap!!)
+                            showLog("gemini result: $a")
+                        }
                     },
                     icon = {
                         Icon(
@@ -137,7 +140,7 @@ fun ConfirmPhotoView(navController: NavController) {
             TextField(
                 value = dishName.value,
                 onValueChange = { it -> dishName.value = it },
-                placeholder = { Text("料理名") },
+                placeholder = { Text("料理") },
                 colors = TextFieldDefaults.textFieldColors(
                     focusedIndicatorColor = Color.Cyan,
                     unfocusedIndicatorColor = colorResource(id = R.color.cornflower_blue),
