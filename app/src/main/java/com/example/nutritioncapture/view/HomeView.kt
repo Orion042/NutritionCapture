@@ -67,8 +67,10 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.nutritioncapture.R
+import com.example.nutritioncapture.data.entity.DishesEntity
 import com.example.nutritioncapture.data.model.CardData
 import com.example.nutritioncapture.data.model.UserInfo
+import com.example.nutritioncapture.data.repository.NutritionCaptureRepository
 import com.example.nutritioncapture.data.service.getDummyCardData
 import com.example.nutritioncapture.data.service.getDummyUserData
 import com.example.nutritioncapture.utils.byteArrayToBitmap
@@ -76,6 +78,12 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.MultiplePermissionsState
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 private val TAG = "HomeView"
 
@@ -84,19 +92,19 @@ fun HomeView(navController: NavController) {
     val listState = rememberLazyListState()
     val context = LocalContext.current
 
-    // ダイアログの表示状態
-    val (showDialog, setShowDialog) = remember { mutableStateOf(false) }
-    val (dialogContent, setDialogContent) = remember { mutableStateOf("") }
+    val databaseRepository = NutritionCaptureRepository(context)
 
-    // ポップアップメニューの表示状態
+    val (showDialog, setShowDialog) = remember { mutableStateOf(false) }
+    val (selectedDish, setSelectedDish) = remember { mutableStateOf<DishesEntity?>(null) }
+
     val (showMenuIndex, setShowMenuIndex) = remember { mutableStateOf(-1) }
 
-    val cardDataList = rememberSaveable { mutableStateOf<List<CardData>?>(null) }
-    val otherUserList = rememberSaveable { mutableStateOf<List<UserInfo>?>(null)}
+    val dishesList = rememberSaveable { mutableStateOf<List<DishesEntity>?>(null) }
+    val otherUserList = rememberSaveable { mutableStateOf<List<UserInfo>?>(null) }
 
     LaunchedEffect(Unit) {
-        val data = getDummyCardData(context)
-        cardDataList.value = data
+        val data = getDishesList(databaseRepository)
+        dishesList.value = data
     }
 
     LaunchedEffect(Unit) {
@@ -108,32 +116,31 @@ fun HomeView(navController: NavController) {
         Column {
             LazyColumn(
                 state = listState,
-                modifier = Modifier
-                    .fillMaxSize()
+                modifier = Modifier.fillMaxSize()
             ) {
-                item {
-                    Column {
-                        Text(
-                            text = stringResource(id = R.string.homeview_card_title_string),
-                            color = Color.Black,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier
-                                .padding(start = 16.dp, bottom = 8.dp)
-                        )
-                        if(cardDataList.value != null) {
+                if (dishesList.value != null && dishesList.value!!.isNotEmpty()) {
+                    item {
+                        Column {
+                            Text(
+                                text = stringResource(id = R.string.homeview_card_title_string),
+                                color = Color.Black,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier
+                                    .padding(start = 16.dp, bottom = 8.dp)
+                            )
                             LazyRow(
                                 modifier = Modifier
                                     .padding(horizontal = 15.dp)
                                     .height(170.dp)
                             ) {
-                                itemsIndexed(cardDataList.value!!) { index, cardData ->
+                                itemsIndexed(dishesList.value!!) { index, cardData ->
                                     DishHistoryList(
                                         index = cardData.id,
-                                        date = cardData.date,
-                                        imageData = cardData.imageData,
+                                        date = cardData.createdAt,
+                                        imageData = cardData.dishesImageByteArrayString,
                                         onCardClick = {
-                                            setDialogContent("Details for ${cardData.title}")
+                                            setSelectedDish(cardData)
                                             setShowDialog(true)
                                         },
                                         showMenuIndex = showMenuIndex,
@@ -144,27 +151,36 @@ fun HomeView(navController: NavController) {
                                                 showLog("修正")
                                             },
                                             "削除" to {
-                                                // TODO: 削除処理
                                                 showLog("削除")
+                                                CoroutineScope(Dispatchers.IO).launch {
+                                                    try {
+                                                        showLog("DishesのDB削除成功")
+                                                        databaseRepository.deleteDishes(cardData)
+
+                                                        val data = getDishesList(databaseRepository)
+                                                        dishesList.value = data
+                                                    } catch (ex: Exception) {
+                                                        showLog("DishesのDB削除失敗 ERROR: ${ex.message}")
+                                                    }
+                                                }
                                             }
                                         )
                                     )
                                 }
                             }
                         }
-                        else {
-                            showLog("DBの結果がnull")
-                        }
                     }
+                }
 
-                    if(otherUserList.value != null) {
+                if (otherUserList.value != null && otherUserList.value!!.isNotEmpty()) {
+                    item {
                         Text(
                             text = stringResource(id = R.string.homeview_recommend_user_string),
                             color = Color.Black,
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier
-                                .padding(start = 16.dp, top = 10.dp,bottom = 8.dp)
+                                .padding(start = 16.dp, top = 10.dp, bottom = 8.dp)
                         )
 
                         LazyRow(
@@ -183,11 +199,9 @@ fun HomeView(navController: NavController) {
                             }
                         }
                     }
-                    else {
-                        showLog("他のユーザー存在せず")
-                    }
                 }
 
+                // ダミーアイテム TODO: 未定
                 items(100) { index ->
                     Text(
                         text = "Item No.$index",
@@ -231,15 +245,17 @@ fun HomeView(navController: NavController) {
                 defaultElevation = 7.dp
             )
         )
-
     }
 
-    if (showDialog) {
+    if (showDialog && selectedDish != null) {
         displayDialog(
             showDialog = showDialog,
             onDismissRequest = { setShowDialog(false) },
             title = "詳細",
-            text = dialogContent,
+            dishesName = selectedDish!!.dishesName.joinToString(", "),
+            dishesIngredients = selectedDish!!.dishesIngredients.joinToString(", "),
+            dishesCalorie = selectedDish!!.dishesCalorie,
+            text = "料理の詳細を表示します",
             onConfirm = { setShowDialog(false) }
         )
     }
@@ -247,7 +263,7 @@ fun HomeView(navController: NavController) {
 
 @Composable
 fun OtherUserIcons(
-    index: Int,
+    index: String,
     backgroundColor: Color = Color.White,
     imageData: ByteArray?,
     onCardClick: () -> Unit
@@ -281,7 +297,7 @@ fun DishHistoryList(
     elevation: Dp = 4.dp,
     cardWidth: Dp = 200.dp,
     cardHeight: Dp = 180.dp,
-    date: String,
+    date: Date,
     imageData: ByteArray?,
     onCardClick: () -> Unit,
     showMenuIndex: Int,
@@ -313,7 +329,7 @@ fun DishHistoryList(
             }
 
             Text(
-                text = date,
+                text = convertDateToString(date),
                 modifier = Modifier
                     .align(Alignment.TopStart)
                     .padding(8.dp)
@@ -329,7 +345,8 @@ fun DishHistoryList(
             ) {
                 IconButton(
                     onClick = {
-                        setShowMenuIndex(index)
+                        showLog("index: $index, showMenuIndex: $showMenuIndex")
+                        setShowMenuIndex(if (showMenuIndex == index) -1 else index)
                     },
                     modifier = Modifier.padding(0.dp)
                 ) {
@@ -370,6 +387,9 @@ fun displayDialog(
     showDialog: Boolean,
     onDismissRequest: () -> Unit,
     title: String,
+    dishesName: String,
+    dishesIngredients: String,
+    dishesCalorie: Float,
     text: String,
     onConfirm: () -> Unit
 ) {
@@ -377,7 +397,11 @@ fun displayDialog(
         AlertDialog(
             onDismissRequest = onDismissRequest,
             title = { Text(text = title) },
-            text = { Text(text = text) },
+            text = {
+                Text(
+                    text = "料理名: $dishesName\n使用材料: $dishesIngredients\n総カロリー: $dishesCalorie"
+                )
+            },
             confirmButton = {
                 Button(
                     onClick = onConfirm
@@ -389,6 +413,23 @@ fun displayDialog(
     }
 }
 
+fun convertDateToString(date: Date): String {
+    val dateFormat = SimpleDateFormat("yyyy/M/d/ HH:mm", Locale.getDefault())
+    return dateFormat.format(date)
+}
+
+suspend fun getDishesList(repository: NutritionCaptureRepository) : List<DishesEntity> {
+    val data: List<DishesEntity> = try {
+        showLog("DishesのDB結果取得成功")
+        val fetchedData = repository.getAllDishes()
+        fetchedData
+    } catch (ex: Exception) {
+        showLog("DishesのDB結果取得失敗: ${ex.message}")
+        emptyList()
+    }
+    return data
+}
+
 private fun showLog(action: String) {
-    Log.d(TAG, "showLog() action: $action")
+    Log.d(TAG, "showLog() : $action")
 }

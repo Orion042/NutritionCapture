@@ -4,19 +4,21 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
 import com.example.nutritioncapture.R
+import com.example.nutritioncapture.data.entity.DishesEntity
 import com.example.nutritioncapture.data.model.CardData
 import com.example.nutritioncapture.data.model.UserInfo
 import com.example.nutritioncapture.utils.imageToByteArray
 import kotlinx.coroutines.delay
 import java.io.ByteArrayOutputStream
+import java.util.Date
 
-suspend fun getDummyCardData(context: Context): List<CardData>? {
+suspend fun getDummyCardData(context: Context): List<DishesEntity>? {
     delay(1500L)
 
     return listOf(
-        CardData(id = 1, date = "2024/1/3", title = "Card 1", label = "Label 1", imageData = imageToByteArray(context, R.drawable.dummy_dish_image), description = "Description 1"),
-        CardData(id = 2, date = "2024/1/2", title = "Card 2", label = "Label 2", imageData = createDummyByteArray(),description = "Description 2"),
-        CardData(id = 3, date = "2024/1/1", title = "Card 3", label = "Label 3", imageData = createDummyByteArray(),description = "Description 3"),
+        DishesEntity(id = 1, dishesImageByteArrayString = imageToByteArray(context, R.drawable.dummy_dish_image), dishesName = arrayListOf("sample"), dishesIngredients = arrayListOf("a", "b"), dishesCalorie = 1f, createdAt = Date()),
+        DishesEntity(id = 2, dishesImageByteArrayString = createDummyByteArray()!!, dishesName = arrayListOf("sample"), dishesIngredients = arrayListOf("a", "b"), dishesCalorie = 1f, createdAt = Date()),
+        DishesEntity(id = 3, dishesImageByteArrayString = createDummyByteArray()!!, dishesName = arrayListOf("sample"), dishesIngredients = arrayListOf("a", "b"), dishesCalorie = 1f, createdAt = Date()),
     )
 }
 
@@ -24,12 +26,12 @@ suspend fun getDummyUserData(context: Context) : List<UserInfo>? {
     delay(1000L)
 
     return listOf(
-        UserInfo(id = 1, name = "Abcde", imageData = imageToByteArray(context, R.drawable.dummy_face_image)),
-        UserInfo(id = 2, name = "Bcde", imageData = createDummyByteArray()),
-        UserInfo(id = 3, name = "Cdef", imageData = createDummyByteArray()),
-        UserInfo(id = 4, name = "Defg", imageData = createDummyByteArray()),
-        UserInfo(id = 5, name = "Efgh", imageData = createDummyByteArray()),
-        UserInfo(id = 6, name = "Fghi", imageData = createDummyByteArray())
+        UserInfo(id = "1", name = "Abcde", imageData = imageToByteArray(context, R.drawable.dummy_face_image), Date(10L)),
+        UserInfo(id = "2", name = "Bcde", imageData = createDummyByteArray(), Date(11L)),
+        UserInfo(id = "3", name = "Cdef", imageData = createDummyByteArray(), Date(12L)),
+        UserInfo(id = "4", name = "Defg", imageData = createDummyByteArray(), Date(13L)),
+        UserInfo(id = "5", name = "Efgh", imageData = createDummyByteArray(), Date(14L)),
+        UserInfo(id = "6", name = "Fghi", imageData = createDummyByteArray(), Date(15L))
     )
 }
 

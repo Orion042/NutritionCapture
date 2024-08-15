@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Analytics
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
@@ -39,13 +40,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.NavOptions
 import com.example.nutritioncapture.R
+import com.example.nutritioncapture.data.dao.DishesDao
+import com.example.nutritioncapture.data.database.NutritionCaptureDatabase
+import com.example.nutritioncapture.data.repository.NutritionCaptureRepository
 import com.example.nutritioncapture.utils.ChatGptUtils
 import com.example.nutritioncapture.utils.GeminiUtils
 import com.example.nutritioncapture.utils.JsonParserUtils
@@ -69,6 +75,8 @@ fun ConfirmPhotoView(navController: NavController) {
     val imageBitmap = byteArrayToBitmap(ViewModelOwner().getPhotoImageViewModel().imageByteArrayMutableState!!)
 
     val focusManager = LocalFocusManager.current
+
+    val databaseRepository = NutritionCaptureRepository(LocalContext.current)
 
     var isTappedNextButton by remember { mutableStateOf(false) }
 
@@ -182,6 +190,7 @@ fun ConfirmPhotoView(navController: NavController) {
             CustomOutlinedTextField(
                 value = dishesName.joinToString(", "),
                 onValueChange = { newValue ->
+                    isTappedNextButton = false
                     val newList = ArrayList(newValue.split(", ").filter { it.isNotBlank() })
                     ViewModelOwner().getDishesViewModel().setDishesName(newList)
                 },
@@ -193,6 +202,7 @@ fun ConfirmPhotoView(navController: NavController) {
             CustomOutlinedTextField(
                 value = dishesIngredients.joinToString(", "),
                 onValueChange = { newValue ->
+                    isTappedNextButton = false
                     val newList = ArrayList(newValue.split(", ").filter { it.isNotBlank() })
                     ViewModelOwner().getDishesViewModel().setDishesIngredients(newList)
                 },
@@ -204,6 +214,7 @@ fun ConfirmPhotoView(navController: NavController) {
             CustomOutlinedTextField(
                 value = dishesCalorie.toString(),
                 onValueChange = { newValue ->
+                    isTappedNextButton = false
                     val newCalorie = newValue.toFloatOrNull() ?: 0f
                     ViewModelOwner().getDishesViewModel().setDishesCalorie(newCalorie)
                 },
@@ -211,6 +222,50 @@ fun ConfirmPhotoView(navController: NavController) {
                 isNotEmpty = dishesCalorie != 0f,
                 isTappedNextButton = isTappedNextButton
             )
+
+            Box(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                ExtendedFloatingActionButton(
+                    onClick = {
+                        isTappedNextButton = true
+
+                        if(dishesName.isNotEmpty() && dishesIngredients.isNotEmpty() && dishesCalorie != 0f || dishesCalorie != null) {
+
+                            ViewModelOwner().getDishesViewModel().saveDishesResult(databaseRepository)
+
+                            val navOptions = NavOptions.Builder()
+                                .setPopUpTo(navController.graph.startDestinationId, true)
+                                .build()
+
+                            navController.navigate("Home", navOptions)
+                        }
+                    },
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.Save,
+                            contentDescription = "保存",
+                            modifier = Modifier
+                                .size(30.dp),
+                            tint = Color.White
+                        )
+                    },
+                    text = {
+                        Text(
+                            text = stringResource(id = R.string.confirmphotoview_save_string),
+                            color = Color.White,
+                            fontSize = 22.sp
+                        )
+                    },
+                    backgroundColor = colorResource(id = R.color.cornflower_blue),
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .padding(top = 0.dp)
+                        .width(150.dp)
+                        .height(50.dp),
+                    shape = RoundedCornerShape(10.dp),
+                )
+            }
         }
     }
 }

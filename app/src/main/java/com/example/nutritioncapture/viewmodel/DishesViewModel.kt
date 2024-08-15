@@ -1,16 +1,23 @@
 package com.example.nutritioncapture.viewmodel
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.nutritioncapture.data.entity.DishesEntity
+import com.example.nutritioncapture.data.repository.NutritionCaptureRepository
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
+import java.util.Date
 
 @SuppressLint("MutableCollectionMutableState")
 class DishesViewModel : ViewModel() {
+    private val TAG = DishesViewModel::class.simpleName
+
     private val _dishesName = mutableStateOf<ArrayList<String>>(ArrayList())
     val dishesName: State<ArrayList<String>> get() = _dishesName
 
@@ -49,5 +56,18 @@ class DishesViewModel : ViewModel() {
         _dishesName.value = ArrayList()
         _dishesIngredients.value = ArrayList()
         _dishesCalorie.value = 0f
+    }
+
+    fun saveDishesResult(repository: NutritionCaptureRepository) {
+        val currentDateTime = Date()
+
+        viewModelScope.launch {
+            try {
+                repository.insertDishes(DishesEntity(dishesImageByteArrayString = ViewModelOwner().getPhotoImageViewModel().imageByteArrayMutableState!!, dishesName = _dishesName.value, dishesIngredients = _dishesIngredients.value, dishesCalorie = _dishesCalorie.value!!, createdAt = currentDateTime))
+                Log.d(TAG, "DB保存成功")
+            } catch (ex: Exception) {
+                Log.d(TAG, "DB保存失敗\nERROR: ${ex.message}")
+            }
+        }
     }
 }
