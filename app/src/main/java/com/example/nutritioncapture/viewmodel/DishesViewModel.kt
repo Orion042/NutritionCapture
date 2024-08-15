@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nutritioncapture.data.entity.DishesEntity
 import com.example.nutritioncapture.data.repository.NutritionCaptureRepository
+import com.example.nutritioncapture.utils.compressImageToJPEG
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.util.Date
@@ -61,9 +62,11 @@ class DishesViewModel : ViewModel() {
     fun saveDishesResult(repository: NutritionCaptureRepository) {
         val currentDateTime = Date()
 
+        val compressedByteArray = compressImageToJPEG(ViewModelOwner().getPhotoImageViewModel().imageByteArrayMutableState!!, 50)
+
         viewModelScope.launch {
             try {
-                repository.insertDishes(DishesEntity(dishesImageByteArrayString = ViewModelOwner().getPhotoImageViewModel().imageByteArrayMutableState!!, dishesName = _dishesName.value, dishesIngredients = _dishesIngredients.value, dishesCalorie = _dishesCalorie.value!!, createdAt = currentDateTime))
+                repository.insertDishes(DishesEntity(dishesImageByteArrayString = compressedByteArray, dishesName = _dishesName.value, dishesIngredients = _dishesIngredients.value, dishesCalorie = _dishesCalorie.value!!, createdAt = currentDateTime))
                 Log.d(TAG, "DB保存成功")
             } catch (ex: Exception) {
                 Log.d(TAG, "DB保存失敗\nERROR: ${ex.message}")

@@ -62,6 +62,13 @@ fun compressAndEncodeBitmap(bitmap: Bitmap, format: Bitmap.CompressFormat = Bitm
     return Base64.getEncoder().encodeToString(compressedByteArray)
 }
 
+fun compressImageToJPEG(byteArray: ByteArray, quality: Int): ByteArray {
+    val bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
+    val outputStream = ByteArrayOutputStream()
+    bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
+    return outputStream.toByteArray()
+}
+
 @Composable
 fun BitmapViewer(bitmap: Bitmap) {
     AndroidView(

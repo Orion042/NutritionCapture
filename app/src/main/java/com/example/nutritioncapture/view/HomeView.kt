@@ -399,7 +399,7 @@ fun displayDialog(
             title = { Text(text = title) },
             text = {
                 Text(
-                    text = "料理名: $dishesName\n使用材料: $dishesIngredients\n総カロリー: $dishesCalorie"
+                    text = "料理名: $dishesName\n使用材料: $dishesIngredients\n総カロリー: $dishesCalorie kcal"
                 )
             },
             confirmButton = {
