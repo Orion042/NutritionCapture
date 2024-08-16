@@ -13,6 +13,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -34,9 +35,11 @@ import androidx.compose.material.FloatingActionButtonDefaults
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -54,9 +57,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -172,6 +177,7 @@ fun HomeView(navController: NavController) {
                     }
                 }
 
+
                 if (otherUserList.value != null && otherUserList.value!!.isNotEmpty()) {
                     item {
                         Text(
@@ -186,7 +192,7 @@ fun HomeView(navController: NavController) {
                         LazyRow(
                             modifier = Modifier
                                 .padding(horizontal = 15.dp)
-                                .height(170.dp)
+                                .height(110.dp)
                         ) {
                             itemsIndexed(otherUserList.value!!) { index, otherUserData ->
                                 OtherUserIcons(
@@ -201,17 +207,20 @@ fun HomeView(navController: NavController) {
                     }
                 }
 
-                // ダミーアイテム TODO: 未定
-                items(100) { index ->
+                item {
                     Text(
-                        text = "Item No.$index",
+                        text = stringResource(id = R.string.homeview_recommend_dishes_string),
                         color = Color.Black,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
+                            .padding(start = 16.dp, top = 10.dp, bottom = 8.dp)
                     )
+                    RecommendDishesCardList(dummyImageId = R.drawable.dummy_food_image02)
+                    RecommendDishesCardList(dummyImageId = R.drawable.dummy_food_image01)
                 }
             }
+
         }
 
         ExtendedFloatingActionButton(
@@ -288,6 +297,46 @@ fun OtherUserIcons(
     }
 }
 
+@Composable
+fun RecommendDishesCardList(
+    backgroundColor: Color = Color.White,
+    shape: Shape = RoundedCornerShape(12.dp),
+    elevation: Dp = 4.dp,
+    cardHeight: Dp = 250.dp,
+    dummyImageId: Int
+) {
+    Card(
+        backgroundColor = backgroundColor,
+        shape = shape,
+        border = BorderStroke(4.dp, color = colorResource(id = R.color.dark_green)),
+        elevation = elevation,
+        modifier = Modifier
+            .padding(8.dp)
+            .fillMaxWidth()
+            .height(cardHeight)
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            Image(
+                painter = painterResource(id = dummyImageId),
+                contentDescription = "Recommend Dishes Icon",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(backgroundColor)
+            )
+
+            Icon(
+                imageVector = Icons.Default.FavoriteBorder,
+                contentDescription = "お気に入り",
+                tint = colorResource(id = R.color.bisque),
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .size(50.dp)
+                    .padding(bottom = 10.dp, end = 10.dp)
+            )
+        }
+    }
+}
 
 @Composable
 fun DishHistoryList(
@@ -404,9 +453,15 @@ fun displayDialog(
             },
             confirmButton = {
                 Button(
-                    onClick = onConfirm
+                    onClick = onConfirm,
+                    colors = ButtonDefaults.textButtonColors(
+                        containerColor = colorResource(id = R.color.cornflower_blue)
+                    )
                 ) {
-                    Text("OK")
+                    Text(
+                        "OK",
+                        color = Color.White
+                    )
                 }
             }
         )

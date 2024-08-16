@@ -48,6 +48,7 @@ import com.example.nutritioncapture.R
 import com.example.nutritioncapture.utils.BitmapViewer
 import com.example.nutritioncapture.utils.byteArrayToBitmap
 import com.example.nutritioncapture.utils.imageToByteArray
+import com.example.nutritioncapture.utils.resizeByteArrayImageWidthAndHeight
 import com.example.nutritioncapture.viewmodel.PhotoImageViewModel
 import com.example.nutritioncapture.viewmodel.ViewModelOwner
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -97,7 +98,8 @@ fun CameraView(navController: NavController) {
 
         showLog("byteArray: $capturedByteArray")
 
-        ViewModelOwner().getPhotoImageViewModel().setImageByteArray(capturedByteArray)
+        ViewModelOwner().getPhotoImageViewModel().setImageByteArray(resizeByteArrayImageWidthAndHeight(capturedByteArray!!, 600, 800))
+
         ViewModelOwner().getDishesViewModel().resetViewModel()
 
         navController.navigate("confirmPhoto") {

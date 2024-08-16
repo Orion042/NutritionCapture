@@ -46,6 +46,17 @@ fun resizeBitmap(bitmap: Bitmap, newWidth: Int, newHeight: Int): Bitmap {
     return scaledBitmap
 }
 
+fun resizeByteArrayImageWidthAndHeight(byteArray: ByteArray, newWidth: Int, newHeight: Int): ByteArray {
+    val originalBitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
+
+    val resizedBitmap = Bitmap.createScaledBitmap(originalBitmap, newWidth, newHeight, true)
+
+    val outputStream = ByteArrayOutputStream()
+    resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 60, outputStream)
+
+    return outputStream.toByteArray()
+}
+
 fun compressAndEncodeBitmap(bitmap: Bitmap, format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG, quality: Int = 100): String {
     val outputStream = ByteArrayOutputStream()
     bitmap.compress(format, quality, outputStream)

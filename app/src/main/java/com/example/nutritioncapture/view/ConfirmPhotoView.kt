@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ExtendedFloatingActionButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Analytics
@@ -79,6 +80,7 @@ fun ConfirmPhotoView(navController: NavController) {
     val databaseRepository = NutritionCaptureRepository(LocalContext.current)
 
     var isTappedNextButton by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(false) }
 
     val dishesName by ViewModelOwner().getDishesViewModel().dishesName
     val dishesIngredients by ViewModelOwner().getDishesViewModel().dishesIngredients
@@ -96,8 +98,17 @@ fun ConfirmPhotoView(navController: NavController) {
         showLog("dishesCalorie: ${aggregatedState.third}")
     }
 
+    LaunchedEffect(isLoading) {
+        if (isLoading) {
+            showLog("Loading started")
+        } else {
+            showLog("Loading ended")
+        }
+    }
+
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
             .clickable { focusManager.clearFocus() }
     ) {
         Column {
@@ -146,21 +157,36 @@ fun ConfirmPhotoView(navController: NavController) {
             ) {
                 ExtendedFloatingActionButton(
                     onClick = {
-                        CoroutineScope(Dispatchers.IO).launch {
-                            val geminiResponse = GeminiUtils().getGeminiProResponseFromBitmap(imageBitmap!!)
-                            showLog("gemini result: $geminiResponse")
+                        try {
+                            isLoading = true
 
-                            val geminiDishesImageResponse = JsonParserUtils().parseGeminiImageResponse(geminiResponse!!)
+                            CoroutineScope(Dispatchers.IO).launch {
+                                val geminiResponse =
+                                    GeminiUtils().getGeminiProResponseFromBitmap(imageBitmap!!)
+                                showLog("gemini result: $geminiResponse")
 
-                            geminiDishesImageResponse.dishes.let {
-                                ViewModelOwner().getDishesViewModel().setDishesName(it)
+                                val geminiDishesImageResponse =
+                                    JsonParserUtils().parseGeminiImageResponse(geminiResponse!!)
+
+                                geminiDishesImageResponse.dishes.let {
+                                    ViewModelOwner().getDishesViewModel().setDishesName(it)
+                                }
+                                geminiDishesImageResponse.ingredients.let {
+                                    ViewModelOwner().getDishesViewModel().setDishesIngredients(it)
+                                }
+                                geminiDishesImageResponse.calorie.let {
+                                    if(it == null) {
+                                        ViewModelOwner().getDishesViewModel().setDishesCalorie(0f)
+                                    }
+                                    else {
+                                        ViewModelOwner().getDishesViewModel().setDishesCalorie(it)
+                                    }
+                                }
+
+                                isLoading = false
                             }
-                            geminiDishesImageResponse.ingredients.let {
-                                ViewModelOwner().getDishesViewModel().setDishesIngredients(it)
-                            }
-                            geminiDishesImageResponse.calorie.let {
-                                ViewModelOwner().getDishesViewModel().setDishesCalorie(it)
-                            }
+                        } catch(ex: Exception) {
+                            showLog("AI分析失敗 ERROR: ${ex.message}")
                         }
                     },
                     icon = {
@@ -267,6 +293,24 @@ fun ConfirmPhotoView(navController: NavController) {
                 )
             }
         }
+        LoadingIndicator(isLoading = isLoading)
+    }
+}
+
+@Composable
+fun LoadingIndicator(isLoading: Boolean) {
+    Box(
+        modifier = Modifier
+            .padding(top = 140.dp)
+            .fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        if (isLoading) {
+            CircularProgressIndicator(
+                color = colorResource(id = R.color.cornflower_blue),
+                modifier = Modifier.size(50.dp)
+            )
+        }
     }
 }
 
@@ -291,6 +335,7 @@ fun CustomOutlinedTextField(
             containerColor = Color.Transparent
         ),
         modifier = Modifier
+            .width(350.dp)
             .padding(start = 15.dp, top = 30.dp),
         singleLine = true,
         trailingIcon = {
@@ -311,7 +356,7 @@ fun CustomOutlinedTextField(
             else if(isTappedNextButton && isNotEmpty == false){
                 Icon(
                     imageVector = Icons.Default.Close,
-                    contentDescription = "入力完了",
+                    contentDescription = "入力未完了",
                     tint = Color.Red
                 )
             }

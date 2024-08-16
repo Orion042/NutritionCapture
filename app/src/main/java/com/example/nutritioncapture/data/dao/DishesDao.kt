@@ -11,7 +11,7 @@ interface DishesDao {
     @Insert
     suspend fun insertDishes(dishes: DishesEntity)
 
-    @Query("SELECT * FROM dishes_table")
+    @Query("SELECT * FROM dishes_table ORDER BY id DESC")
     suspend fun getAllDishes() : List<DishesEntity>
 
     @Query("SELECT * FROM dishes_table WHERE id = :id")

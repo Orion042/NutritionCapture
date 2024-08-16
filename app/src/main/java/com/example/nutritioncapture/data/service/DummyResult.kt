@@ -16,22 +16,20 @@ suspend fun getDummyCardData(context: Context): List<DishesEntity>? {
     delay(1500L)
 
     return listOf(
-        DishesEntity(id = 1, dishesImageByteArrayString = imageToByteArray(context, R.drawable.dummy_dish_image), dishesName = arrayListOf("sample"), dishesIngredients = arrayListOf("a", "b"), dishesCalorie = 1f, createdAt = Date()),
+        DishesEntity(id = 1, dishesImageByteArrayString = createDummyByteArray()!!, dishesName = arrayListOf("sample"), dishesIngredients = arrayListOf("a", "b"), dishesCalorie = 1f, createdAt = Date()),
         DishesEntity(id = 2, dishesImageByteArrayString = createDummyByteArray()!!, dishesName = arrayListOf("sample"), dishesIngredients = arrayListOf("a", "b"), dishesCalorie = 1f, createdAt = Date()),
         DishesEntity(id = 3, dishesImageByteArrayString = createDummyByteArray()!!, dishesName = arrayListOf("sample"), dishesIngredients = arrayListOf("a", "b"), dishesCalorie = 1f, createdAt = Date()),
     )
 }
 
 suspend fun getDummyUserData(context: Context) : List<UserInfo>? {
-    delay(1000L)
 
     return listOf(
-        UserInfo(id = "1", name = "Abcde", imageData = imageToByteArray(context, R.drawable.dummy_face_image), Date(10L)),
-        UserInfo(id = "2", name = "Bcde", imageData = createDummyByteArray(), Date(11L)),
-        UserInfo(id = "3", name = "Cdef", imageData = createDummyByteArray(), Date(12L)),
-        UserInfo(id = "4", name = "Defg", imageData = createDummyByteArray(), Date(13L)),
-        UserInfo(id = "5", name = "Efgh", imageData = createDummyByteArray(), Date(14L)),
-        UserInfo(id = "6", name = "Fghi", imageData = createDummyByteArray(), Date(15L))
+        UserInfo(id = "1", name = "Abcd", imageData = imageToByteArray(context, R.drawable.dummy_user_image01), Date(10L)),
+        UserInfo(id = "2", name = "Bcde", imageData = imageToByteArray(context, R.drawable.dummy_user_image02), Date(11L)),
+        UserInfo(id = "3", name = "Cdef", imageData = imageToByteArray(context, R.drawable.dummy_user_image03), Date(12L)),
+        UserInfo(id = "4", name = "Defg", imageData = imageToByteArray(context, R.drawable.dummy_user_image04), Date(13L)),
+        UserInfo(id = "5", name = "Fghi", imageData = imageToByteArray(context, R.drawable.dummy_user_image05), Date(15L))
     )
 }
 
