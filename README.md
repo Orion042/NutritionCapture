@@ -16,4 +16,4 @@ Set the API key to XXXXXXXXX.
 
 ### Food photography, calorie measurement, DB content deletion video
 
-![screen_capture](https://github.com/user-attachments/assets/9864182d-bd1a-4c98-9c5d-3103ef817ad3)
+![screen_capture](https://github.com/user-attachments/assets/6f037fe4-3d02-4516-9d69-c9bb7032f7d7)
