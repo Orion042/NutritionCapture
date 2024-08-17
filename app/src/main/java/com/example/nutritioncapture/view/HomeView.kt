@@ -69,6 +69,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.nutritioncapture.R
@@ -85,6 +86,8 @@ import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -108,13 +111,12 @@ fun HomeView(navController: NavController) {
     val otherUserList = rememberSaveable { mutableStateOf<List<UserInfo>?>(null) }
 
     LaunchedEffect(Unit) {
-        val data = getDishesList(databaseRepository)
-        dishesList.value = data
-    }
+        val scope = CoroutineScope(Dispatchers.IO)
+        val dishesDeferred = scope.async { getDishesList(databaseRepository) }
+        val userDataDeferred = scope.async { getDummyUserData(context) }
 
-    LaunchedEffect(Unit) {
-        val userData = getDummyUserData(context)
-        otherUserList.value = userData
+        dishesList.value = dishesDeferred.await()
+        otherUserList.value = userDataDeferred.await()
     }
 
     Box(modifier = Modifier.fillMaxSize()) {

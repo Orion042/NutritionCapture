@@ -16,4 +16,8 @@
     <string name="confirmphotoview_ai_analyze_string">AI分析</string>
     <string name="confirmphotoview_save_string">保存</string>
     <!-- End -->
+
+    <!-- SearchView -->
+    <string name="searchview_search_string">検索</string>
+    <!-- End -->
 </resources>

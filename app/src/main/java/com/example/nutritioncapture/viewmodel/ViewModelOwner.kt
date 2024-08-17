@@ -6,6 +6,7 @@ class ViewModelOwner {
     companion object {
         val photoImageViewModel = PhotoImageViewModel()
         val dishesViewModel = DishesViewModel()
+        val searchViewModel = SearchViewModel()
     }
 
     fun getPhotoImageViewModel() : PhotoImageViewModel {
@@ -14,5 +15,9 @@ class ViewModelOwner {
 
     fun getDishesViewModel() : DishesViewModel {
         return dishesViewModel
+    }
+
+    fun getSearchViewModel() : SearchViewModel {
+        return searchViewModel
     }
 }

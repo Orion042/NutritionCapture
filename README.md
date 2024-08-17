@@ -1,6 +1,6 @@
 # NutritionCapture
 
-### APIキーの設定
+### API Key Settings
 
 1. Add ChatGPT API key to local.properties
 ```

@@ -106,6 +106,13 @@ dependencies {
     implementation("io.ktor:ktor-client-android:2.3.12")
 
     ksp("androidx.room:room-compiler:2.6.1")
-
     implementation("androidx.room:room-ktx:2.6.1")
+
+    implementation("com.patrykandpatrick.vico:compose:2.0.0-alpha.28")
+    implementation("com.patrykandpatrick.vico:compose-m2:2.0.0-alpha.28")
+    implementation("com.patrykandpatrick.vico:compose-m3:2.0.0-alpha.28")
+    implementation("com.patrykandpatrick.vico:core:2.0.0-alpha.28")
+    implementation("com.patrykandpatrick.vico:views:2.0.0-alpha.28")
+
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 }

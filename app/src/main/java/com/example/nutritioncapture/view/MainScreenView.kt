@@ -171,3 +171,7 @@ fun setStatusBarColor() {
         )
     }
 }
+
+private fun showLog(logMessage: String) {
+    Log.d("MainScreenView", logMessage)
+}
